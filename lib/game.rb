@@ -2,6 +2,7 @@ require_relative './player.rb'
 require_relative './dealer.rb'
 require_relative './deck.rb'
 require 'byebug'
+
 class Game
     attr_accessor :current_count, :deck_size, :minimum_bet
 
@@ -13,7 +14,7 @@ class Game
         @current_count = 0
         @penetration = rand ((@deck_size - 2) * 52)...(@deck_size * 52)
         @hands = 0
-        start(10000)
+        start(100000)
         puts "Finished 10,000 hands, player bankroll is #{@player.bankroll}: increased by #{@player.bankroll - 2000}"
     end
 
@@ -49,6 +50,7 @@ class Game
             if Game.hand_count(@dealer.cards) == 21
                 # puts "Dealer has a natural, player bust!"
                 @dealer.bankroll += wager
+                @player.bankroll -= wager
                 # sleep(0.25)
             end
 
@@ -73,6 +75,9 @@ class Game
                 # puts "Player busts!"
                 # sleep(0.25)
                 # return
+                @player.bankroll -= wager
+                @dealer.bankroll += wager
+                update_count(dealer_second_down_card)
             else
                 update_count(dealer_second_down_card)
                 while Game.hand_count(@dealer.cards) < 17
@@ -98,12 +103,15 @@ class Game
                         # puts "Dealer wins."
                         # sleep(0.25)
                         @dealer.bankroll += wager
+                        @player.bankroll -= wager
                     elsif hand_dealer_cards == hand_player_cards
                         # puts "It's a draw, no winners."
                         # sleep(0.25)
+
                     else
                         # puts "Player wins"
                         # sleep(0.25)
+                        @dealer.bankroll -= wager
                         @player.bankroll += wager
                     end
                 end
@@ -121,7 +129,7 @@ class Game
         puts "Current bankroll is #{@player.bankroll}"
         # byebug
         replace_shoe
-        start(10000)
+        start(100000)
     # rescue NoMethodError
     #     byebug
     # end
